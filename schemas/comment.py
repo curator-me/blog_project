@@ -16,7 +16,14 @@ class CommentIn(BaseModel):
     body: str
 
 class CommentOut(BaseModel):
-    comments : List[Comment]
+    id: int
+    body: str
+    time_commented: datetime
+    commenter_id: int
+
+    class Config:
+        orm_mode = True
+
 
 class CommentInDB(BaseModel):
     body: str

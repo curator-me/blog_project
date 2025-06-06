@@ -3,9 +3,7 @@ from pydantic import BaseModel
 from datetime import datetime
 
 class Like(BaseModel):
-    username : str
+    reactor_id : int
     blog_id : int
-    date_liked : datetime
+    time_liked : datetime
 
-class LikeOut(BaseModel):
-    likes : List[Like]

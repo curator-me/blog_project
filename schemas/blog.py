@@ -13,8 +13,8 @@ class BlogOut(BaseModel):
     body: str
     time_created: datetime
     time_updated: datetime 
-    likes: int
-    comments: List[CommentOut]
+    likes_count: int
+    comments_count: int
 
     class Config:
         orm_mode = True

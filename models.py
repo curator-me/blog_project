@@ -65,6 +65,7 @@ class Comment(Base):
     id = Column(Integer, primary_key=True, index=True)
     body = Column(String, nullable=False)
     time_commented = Column(DateTime(timezone=True), server_default=func.now())
+    # time_updated = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     commenter_id = Column(Integer, ForeignKey("users.id"))
     commenter = relationship("User", back_populates="comments")

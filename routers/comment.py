@@ -21,13 +21,12 @@ def add_comment(blog_id: int, request: CommentIn, db: Session = Depends(get_db),
     comment = models.Comment()
     comment.blog_id = blog_id
     comment.commenter_id = current_user.id
-    comment.body = CommentIn
+    comment.body = request.body
+    blog.comments_count += 1
 
     db.add(comment)
     db.commit()
     db.refresh(comment)
-
-    blog.comments_count += 1
 
     return {'info': 'comment added'}
 

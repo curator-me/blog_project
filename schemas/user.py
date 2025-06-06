@@ -14,6 +14,7 @@ class UserIn(BaseModel):
 class UserOut(BaseModel):
     username: str
     email: EmailStr
+    
 
 
 class UserInDB(BaseModel):
@@ -21,3 +22,5 @@ class UserInDB(BaseModel):
     firstname: Optional[str] = None
     lastname: Optional[str] = None
     location: Optional[str] = None
+
+    # this Optional let us to send data for the desire feild only #

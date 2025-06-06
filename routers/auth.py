@@ -37,7 +37,6 @@ def register(request: user.UserIn, db: Session = Depends(get_db)):
 
 @router.post('/login', response_model=token.Token)
 def login(request: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    print("here we are 1")
     user = (
         db.query(models.User).filter(models.User.username == request.username).first()
     )
@@ -47,7 +46,7 @@ def login(request: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(
         )
     if not verify_pass(request.password, user.password):
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="password not matched"
+        status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect password"
         )
 
     access_token = getToken(user.username)

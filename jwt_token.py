@@ -5,9 +5,7 @@ from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 from .database import get_db
 from .models import User
-from jose import JWTError
-
-import jwt
+from jose import JWTError, jwt
 
 
 # to get a string like this run:
@@ -40,7 +38,7 @@ def getToken(username: str):
 
 # verify token
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 
 def get_user(username: str, db: Session):
@@ -61,7 +59,9 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
 
     user = get_user(username, db)
     # Optional: if you have a `disabled` field in your User model
-    if getattr(user, "disabled", False):
-        raise HTTPException(status_code=400, detail="Inactive user")
+    # disabled = Column(Boolean, default=False)
+
+    # if getattr(user, "disabled", False):
+    #     raise HTTPException(status_code=400, detail="Inactive user")
 
     return user
