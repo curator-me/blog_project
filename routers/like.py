@@ -26,6 +26,8 @@ def add_like(id: int, db: Session = Depends(get_db),  current_user: models.User 
     like.blog_id = blog.id
     like.reactor_id = current_user.id 
 
+    blog.likes_count += 1
+
     db.add(like)
     db.commit()
     db.refresh(like)
@@ -49,5 +51,6 @@ def unlike(id: int, db: Session = Depends(get_db),  current_user: models.User = 
 
     db.delete(like)
     db.commit()
+    blog.likes_count -= 1
     
     return {'info': 'unliked'}

@@ -21,7 +21,6 @@ app.include_router(blog.router)
 app.include_router(comment.router)
 app.include_router(like.router)
 
-# app.include_router(blog.router)
 
 '''
 blog/

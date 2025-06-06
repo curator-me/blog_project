@@ -81,7 +81,7 @@ def my_comments(db: Session = Depends(get_db),  current_user: models.User = Depe
     return comments
 
 @router.get('/my-blogs' ,response_model=List[BlogOut])
-def get_blogs(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+def my_blogs(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     
     blogs = db.query(models.Blog).filter(models.Blog.author_id == current_user.id).all()
 

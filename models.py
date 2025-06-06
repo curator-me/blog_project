@@ -32,6 +32,7 @@ class Blog(Base):
     time_updated = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     likes_count = Column(Integer, default=0)
+    comments_count = Column(Integer, default=0)
 
     # Foreign Key
     author_id = Column(Integer, ForeignKey("users.id"))
