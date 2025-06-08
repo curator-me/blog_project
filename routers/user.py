@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status, HTTPException, Query
 from ..jwt_token import get_current_user
 from ..schemas.blog import BlogOut
 from ..schemas.comment import CommentOut
@@ -10,7 +10,17 @@ from sqlalchemy.orm import Session
 from .. import models
 
 
-router = APIRouter(prefix="/user", tags=["User"])
+router = APIRouter(prefix="/user", tags=["user"])
+
+@router.get('/', response_model=UserOut)
+def get_user(id: int = Query(...), db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    user = db.query(models.User).filter(models.User.id == id).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
+    return user
 
 @router.get('/all', response_model=List[UserOut])
 def get_users(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
@@ -35,16 +45,6 @@ def my_blogs(db: Session = Depends(get_db), current_user: models.User = Depends(
     blogs = db.query(models.Blog).filter(models.Blog.author_id == current_user.id)
 
     return blogs.all()
-
-@router.get('/{id}', response_model=UserOut)
-def get_user(id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
-    user = db.query(models.User).filter(models.User.id == id).first()
-
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
-        )
-    return user
 
 
 @router.put("/{id}/update", status_code=status.HTTP_200_OK)
@@ -78,7 +78,7 @@ def update_user(id: int,request: UserInDB, db: Session = Depends(get_db),  curre
 def delete_user(id: int, db: Session = Depends(get_db),  current_user: models.User = Depends(get_current_user)):
     user = db.query(models.User).filter(models.User.id == id).first()
 
-    if id is not current_user.id:       # or not admin
+    if id != current_user.id:       # or not admin
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='You cannot perform this action')
     if not user:
         raise HTTPException(

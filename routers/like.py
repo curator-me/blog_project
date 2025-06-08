@@ -46,7 +46,7 @@ def unlike(id: int, db: Session = Depends(get_db),  current_user: models.User = 
 
     if not like:
         raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail='already liked')
-    if like.reactor_id is not current_user.id:
+    if like.reactor_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
 
     db.delete(like)

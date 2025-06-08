@@ -1,11 +1,11 @@
-from typing import List, Optional
+from typing import Optional
 from pydantic import BaseModel
 from datetime import datetime
-from .comment import CommentOut
 
 class BlogIn(BaseModel):
     title: str
     body: str
+    catagory_id: int
 
 class BlogOut(BaseModel):
     id: int

@@ -34,17 +34,14 @@ class Blog(Base):
     likes_count = Column(Integer, default=0)
     comments_count = Column(Integer, default=0)
 
-    # Foreign Key
-    author_id = Column(Integer, ForeignKey("users.id"))
+    author_id = Column(Integer, ForeignKey("users.id"))             ## "tablename.column"
+    catagory_id = Column(Integer, ForeignKey("catagories.id"))
 
-    # Relationship to User
-    author = relationship("User", back_populates="blogs")
-
-    # Relationship to Like
-    likes = relationship("Like", back_populates="blog")
-
-    # Relationship to Comment
+    # Relationship to User, Like, Comment
+    author = relationship("User", back_populates="blogs")           ## BaseName, B_P = Relastionship model name of 
+    likes = relationship("Like", back_populates="blog")             ## that BaseName model for connecting
     comments = relationship("Comment", back_populates="blog")
+    catagory = relationship("Catagory", back_populates="blogs")
 
 
 class Like(Base):
@@ -72,3 +69,11 @@ class Comment(Base):
 
     blog_id = Column(Integer, ForeignKey("blogs.id"))
     blog = relationship("Blog", back_populates="comments")
+
+class Catagory(Base):
+    __tablename__ = 'catagories'
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+
+    blogs = relationship("Blog", back_populates="catagory")

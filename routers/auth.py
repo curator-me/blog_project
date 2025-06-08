@@ -35,7 +35,7 @@ def register(request: user.UserIn, db: Session = Depends(get_db)):
 
     return {"info": "user created successfully"}
 
-@router.post('/login', response_model=token.Token)
+@router.get('/login', response_model=token.Token)
 def login(request: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = (
         db.query(models.User).filter(models.User.username == request.username).first()
