@@ -1,11 +1,11 @@
-from typing import List
+from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from ..schemas.blog import BlogIn, BlogOut, BlogInDB
 from ..schemas.comment import CommentOut
 from ..schemas.like import Like
-from ..schemas.catagory import Catagory
+from ..schemas.category import Category
 from ..database import get_db
 from .. import models
 from ..jwt_token import get_current_user
@@ -35,32 +35,37 @@ def get_all_blogs(db: Session = Depends(get_db), current_user: models.User = Dep
 
 
 
-@router.get('/catagory', response_model=List[BlogOut])
-def get_blogs_by_catagory(id: int = Query(...), db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
-    blog = db.query(models.Blog).filter(models.Blog.catagory_id == id)
+@router.get('', response_model=List[BlogOut])
+def search_blog(category: Optional[str] = Query(None), tag: Optional[str] = Query(None),
+                db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    q = db.query(models.Blog)
+    if category:
+        query = q.join(Category).filter(models.Category.name == category)
 
-    return blog.all()
+
+    return query.all()
+        
 
     
 @router.post('/create', status_code=status.HTTP_201_CREATED)
-def create_blog(request: BlogIn,new_catagory: Catagory, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+def create_blog(request: BlogIn,new_category: Category, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     blog = models.Blog(
         title = request.title,
         body = request.body,
         author_id = current_user.id,
-        # catagory_id = request.catagory_id,
+        # category_id = request.category_id,
     )
 
-    id = db.query(models.Catagory).filter(models.Catagory.id == request.catagory_id).first()
+    id = db.query(models.Category).filter(models.Category.id == request.category_id).first()
     if id:    
-        blog.catagory_id = request.catagory_id
+        blog.category_id = request.category_id
     else:
-        catagory = models.Catagory(name = new_catagory.name)
-        db.add(catagory)
+        category = models.Category(name = new_category.name)
+        db.add(category)
         db.commit()
-        db.refresh(catagory)
+        db.refresh(category)
 
-        blog.catagory_id = catagory.id
+        blog.category_id = category.id
         
 
     db.add(blog)

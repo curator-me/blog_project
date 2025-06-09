@@ -5,7 +5,7 @@ from datetime import datetime
 class BlogIn(BaseModel):
     title: str
     body: str
-    catagory_id: int
+    category_id: int
 
 class BlogOut(BaseModel):
     id: int

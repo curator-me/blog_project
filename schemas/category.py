@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
 
-class Catagory(BaseModel):
+class Category(BaseModel):
     name: Optional[str] = None
 
     
