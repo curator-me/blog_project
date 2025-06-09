@@ -77,3 +77,10 @@ class Catagory(Base):
     name = Column(String, nullable=False)
 
     blogs = relationship("Blog", back_populates="catagory")
+
+
+class Tags(Base):
+    __tablename__ = 'tags'
+
+    id = Column(Integer, primary_key=True, index=True)
+
