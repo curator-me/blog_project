@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from .routers import auth, blog, category, user, comment, like
+from .routers import auth, blog, category, user, comment, like, tag
 from .database import engine
 from . import models
 
@@ -21,6 +21,7 @@ app.include_router(blog.router)
 app.include_router(comment.router)
 app.include_router(like.router)
 app.include_router(category.router)
+app.include_router(tag.router)
 
 
 '''

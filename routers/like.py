@@ -35,7 +35,7 @@ def add_like(id: int, db: Session = Depends(get_db),  current_user: models.User 
     return {'info': 'liked'}
 
 
-@router.post('/{blog_id}/unlike')
+@router.delete('/{blog_id}/unlike')
 def unlike(id: int, db: Session = Depends(get_db),  current_user: models.User = Depends(get_current_user)):
     blog = db.query(models.Blog).filter(models.Blog.id == id).first()
 

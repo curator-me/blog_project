@@ -1,8 +1,15 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, DateTime
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, DateTime, Table
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from .database import Base
 
+
+blog_tag = Table(
+    'blog_tag', 
+    Base.metadata,
+    Column('blog_id', ForeignKey('blogs.id', ondelete="CASCADE"), primary_key=True),
+    Column('tag_id', ForeignKey('tags.id', ondelete="CASCADE"), primary_key=True),
+)
 
 
 class User(Base):
@@ -38,10 +45,12 @@ class Blog(Base):
     category_id = Column(Integer, ForeignKey("catagories.id"))
 
     # Relationship to User, Like, Comment
-    author = relationship("User", back_populates="blogs")           ## BaseName, B_P = Relastionship model name of 
-    likes = relationship("Like", back_populates="blog")             ## that BaseName model for connecting
+    author = relationship("User", back_populates="blogs")           ## Model_name, B_P = Relastionship model name of 
+    likes = relationship("Like", back_populates="blog")             ## that model for connecting
     comments = relationship("Comment", back_populates="blog")
     category = relationship("Category", back_populates="blogs")
+
+    tags = relationship("Tag",secondary=blog_tag, back_populates="blogs")  ## secondary=table_where_the_link_lives
 
 
 class Like(Base):
@@ -79,8 +88,10 @@ class Category(Base):
     blogs = relationship("Blog", back_populates="category")
 
 
-class Tags(Base):
+class Tag(Base):
     __tablename__ = 'tags'
 
     id = Column(Integer, primary_key=True, index=True)
+    name = Column(Integer, nullable=False, unique=True)
 
+    blogs = relationship("Blog", secondary=blog_tag, back_populates='tags')
