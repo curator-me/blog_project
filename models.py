@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, DateTime, Table
+from sqlalchemy import Boolean, Column, ForeignKey, Index, Integer, String, DateTime, Table, exists
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from .database import Base
@@ -9,6 +9,16 @@ blog_tag = Table(
     Base.metadata,
     Column('blog_id', ForeignKey('blogs.id', ondelete="CASCADE"), primary_key=True),
     Column('tag_id', ForeignKey('tags.id', ondelete="CASCADE"), primary_key=True),
+)
+
+favourite_blog_table = Table(
+    'favourite_blog',
+    Base.metadata,
+    Column('user_id', ForeignKey('users.id', ondelete="CASCADE"), primary_key=True),
+    Column('blog_id', ForeignKey('blogs.id', ondelete="CASCADE"), primary_key=True),
+    Column('added_at', DateTime, server_default=func.now()),
+    Index('idx_favorite_user', 'user_id'),
+    Index('idx_favorite_blog', 'blog_id'),
 )
 
 
@@ -27,6 +37,7 @@ class User(Base):
     blogs = relationship('Blog', back_populates='author')
     likes = relationship('Like', back_populates='liked_by')
     comments = relationship('Comment', back_populates='commenter')
+    favorite_blogs = relationship('Blog', secondary=favourite_blog_table, back_populates='favorited_by')
  
 
 class Blog(Base):
@@ -40,18 +51,33 @@ class Blog(Base):
 
     likes_count = Column(Integer, default=0)
     comments_count = Column(Integer, default=0)
+    favourite_count = Column(Integer, default=0)
 
     author_id = Column(Integer, ForeignKey("users.id"))             ## "tablename.column"
     category_id = Column(Integer, ForeignKey("catagories.id"))
 
     # Relationship to User, Like, Comment
-    author = relationship("User", back_populates="blogs")           ## Model_name, B_P = Relastionship model name of 
-    likes = relationship("Like", back_populates="blog")             ## that model for connecting
+    author = relationship("User", back_populates="blogs") 
+    likes = relationship("Like", back_populates="blog")
     comments = relationship("Comment", back_populates="blog")
     category = relationship("Category", back_populates="blogs")
 
-    tags = relationship("Tag",secondary=blog_tag, back_populates="blogs")  ## secondary=table_where_the_link_lives
+    favorited_by = relationship('User', secondary=favourite_blog_table, back_populates='favorite_blog')
+    tags = relationship("Tag", secondary=blog_tag, back_populates="blogs")
 
+    ''' object_name = relationship(
+       'model_name', 
+        secondary = association_table_name, 
+        back_populates = 'relationship_object_name')
+    '''
+
+    def is_favorited(self, user_id, blog_id, db):
+        return db.query(
+            exists().where(
+                favourite_blog_table.c.user_id == user_id,
+                favourite_blog_table.c.blog_id == blog_id,
+            )
+        )
 
 class Like(Base):
     __tablename__ = "likes"
@@ -83,7 +109,7 @@ class Category(Base):
     __tablename__ = 'catagories'
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, nullable=False)
+    name = Column(String, nullable=False, unique=True)
 
     blogs = relationship("Blog", back_populates="category")
 
@@ -95,3 +121,5 @@ class Tag(Base):
     name = Column(Integer, nullable=False, unique=True)
 
     blogs = relationship("Blog", secondary=blog_tag, back_populates='tags')
+
+

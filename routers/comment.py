@@ -31,7 +31,7 @@ def add_comment(blog_id: int, request: CommentIn, db: Session = Depends(get_db),
     return {'info': 'comment added'}
 
 
-@router.get('/{comment_id}/blog', response_model=BlogOut)
+@router.get('/{id}/blog', response_model=BlogOut)
 def get_blog(id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     comment = db.query(models.Comment).filter(models.Comment.id == id).first()
     blog = db.query(models.Blog).filter(models.Blog.id == comment.blog_id).first()
