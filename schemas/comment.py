@@ -19,6 +19,7 @@ class CommentOut(BaseModel):
     id: int
     body: str
     time_commented: datetime
+    time_updated: datetime
     commenter_id: int
 
     class Config:

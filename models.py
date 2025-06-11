@@ -21,6 +21,17 @@ favourite_blog_table = Table(
     Index('idx_favorite_blog', 'blog_id'),
 )
 
+class History(Base):
+    __tablename__ = 'history'
+
+    user_id = Column(Integer, ForeignKey('users.id', ondelete="CASCADE"), primary_key=True)
+    blog_id = Column(Integer, ForeignKey('blogs.id', ondelete="CASCADE"), primary_key=True)
+    viewed_at = Column(DateTime, server_default=func.now())
+
+    user = relationship("User", back_populates="history")
+    blog = relationship("Blog", back_populates="history")
+
+
 
 class User(Base):
     __tablename__ = 'users'
@@ -38,6 +49,9 @@ class User(Base):
     likes = relationship('Like', back_populates='liked_by')
     comments = relationship('Comment', back_populates='commenter')
     favorite_blogs = relationship('Blog', secondary=favourite_blog_table, back_populates='favorited_by')
+
+    history = relationship('History', back_populates='user')
+    
  
 
 class Blog(Base):
@@ -46,12 +60,15 @@ class Blog(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, nullable=False)
     body = Column(String, nullable=False)
+    # search_vector = Column(TSVectorType('title', 'content'))  # Special column for full-text search (postgresql)
+
     time_created = Column(DateTime(timezone=True), server_default=func.now())
     time_updated = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     likes_count = Column(Integer, default=0)
     comments_count = Column(Integer, default=0)
     favourite_count = Column(Integer, default=0)
+    view_count = Column(Integer, default=0)
 
     author_id = Column(Integer, ForeignKey("users.id"))             ## "tablename.column"
     category_id = Column(Integer, ForeignKey("catagories.id"))
@@ -70,6 +87,7 @@ class Blog(Base):
         secondary = association_table_name, 
         back_populates = 'relationship_object_name')
     '''
+    history = relationship('History', back_populates='user')
 
     def is_favorited(self, user_id, blog_id, db):
         return db.query(
@@ -97,7 +115,7 @@ class Comment(Base):
     id = Column(Integer, primary_key=True, index=True)
     body = Column(String, nullable=False)
     time_commented = Column(DateTime(timezone=True), server_default=func.now())
-    # time_updated = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    time_updated = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     commenter_id = Column(Integer, ForeignKey("users.id"))
     commenter = relationship("User", back_populates="comments")
@@ -121,5 +139,4 @@ class Tag(Base):
     name = Column(Integer, nullable=False, unique=True)
 
     blogs = relationship("Blog", secondary=blog_tag, back_populates='tags')
-
 

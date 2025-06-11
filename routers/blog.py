@@ -1,6 +1,7 @@
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import func
 
 from ..schemas.blog import BlogIn, BlogOut, BlogInDB
 from ..schemas.comment import CommentOut
@@ -63,9 +64,11 @@ def get_blog(id: int = Query(...), db: Session = Depends(get_db), current_user: 
 
     if not blog:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="blog not found")
-    if blog.author_id != current_user.id:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='you cannot access this content')
-    
+
+    blog.view_count += 1
+    db.commit()
+    db.refresh(blog)
+
     return blog
 
 
@@ -109,19 +112,50 @@ def delete_blog(id: int, db: Session = Depends(get_db), current_user: models.Use
 
 
 # Search/filter operations
-@router.get('/search', response_model=List[BlogOut])
-def search_blog(category: Optional[str] = Query(None), tag: Optional[str] = Query(None),
+@router.get('/query', response_model=List[BlogOut])
+def blog_query(category: Optional[str] = Query(None), tag: Optional[str] = Query(None),
                 skip: int = 0, limit: int = 10,
                 db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     query = db.query(models.Blog)
     if category:
-        query = query.join(Category).filter(models.Category.name == category)
+        query = query.join(Category).filter(models.Category.name == category).options(
+            joinedload(models.Blog.category),
+            joinedload(models.Blog.tags),
+        )
 
     if tag:
-        query = query.join(models.Blog.tags).filter(models.Tag.name == tag)
+        query = query.join(models.Blog.tags).filter(models.Tag.name == tag).options(
+            joinedload(models.Blog.category),
+            joinedload(models.Blog.tags),
+        )
 
     return query.order_by(models.Blog.time_created.desc()).all()
 
+@router.get('/search', response_model=List)
+def search_blog(search_query: str, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    if search_query.__len__() < 2:
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail='query is too short!!!')
+
+    blog = db.query(models.Blog).join(models.Category).join(models.Tag).group_by(
+        models.Blog.id, Category.name).filter(
+            func.to_tsvector(
+                'english',
+                func.coalesce(models.Blog.title, '') + ' ' +
+                func.coalesce(models.Blog.body, '') + ' ' +
+                func.coalesce(models.Category.name, '') + ' ' + 
+                func.coalesce(
+                    func.aggregate_strings(Tag.name, ' '), ''
+                )
+            ).match(search_query)
+        ).all()
+           
+
+    # blogs = db.query(models.Blog).filter(                     ## postgresql
+    #         models.Blog.search_vector.match(search_query)
+    #     ).all()
+    
+
+    return blog
 
 # Relationship endpoints
 @router.get('/{id}/comments', response_model=List[CommentOut])
@@ -148,4 +182,3 @@ def get_tags(id: int, db: Session = Depends(get_db), current_user: models.User =
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="blog not found")
     
     return blog.tags
-

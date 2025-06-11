@@ -19,13 +19,13 @@ class BlogIn(BaseModel):
 class BlogOut(BaseModel):
     id: int
     title: str
-    body: str
     time_created: datetime
     time_updated: datetime 
+    view_count: int
     likes_count: int
     comments_count: int
-    category_name: str
-    tags: List[str]
+    category_name: Optional[str] = None
+    tags:Optional[List[str]] = None
 
     class Config:
         orm_mode = True
