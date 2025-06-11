@@ -77,7 +77,7 @@ class Blog(Base):
     author = relationship("User", back_populates="blogs") 
     likes = relationship("Like", back_populates="blog")
     comments = relationship("Comment", back_populates="blog")
-    category = relationship("Category", back_populates="blogs")
+    category = relationship("Category", back_populates="blogs") 
 
     favorited_by = relationship('User', secondary=favourite_blog_table, back_populates='favorite_blogs')
     tags = relationship("Tag", secondary=blog_tag, back_populates="blogs")
