@@ -79,7 +79,7 @@ class Blog(Base):
     comments = relationship("Comment", back_populates="blog")
     category = relationship("Category", back_populates="blogs")
 
-    favorited_by = relationship('User', secondary=favourite_blog_table, back_populates='favorite_blog')
+    favorited_by = relationship('User', secondary=favourite_blog_table, back_populates='favorite_blogs')
     tags = relationship("Tag", secondary=blog_tag, back_populates="blogs")
 
     ''' object_name = relationship(
@@ -87,7 +87,7 @@ class Blog(Base):
         secondary = association_table_name, 
         back_populates = 'relationship_object_name')
     '''
-    history = relationship('History', back_populates='user')
+    history = relationship('History', back_populates='blog')
 
     def is_favorited(self, user_id, blog_id, db):
         return db.query(
