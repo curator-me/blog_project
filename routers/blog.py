@@ -135,7 +135,7 @@ def delete_blog(id: int, db: Session = Depends(get_db), current_user: models.Use
 def blog_query(category: Optional[str] = Query(None), tag: Optional[str] = Query(None),
                 skip: int = 0, limit: int = 10,
                 db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
-    query = db.query(models.Blog)
+    query = db.query(models.Blog) 
     if category:
         query = query.join(models.Category).filter(models.Category.name == category).options(
             joinedload(models.Blog.category),
@@ -193,11 +193,11 @@ def get_likes(id: int, db: Session = Depends(get_db), current_user: models.User 
     return db.query(models.Like).filter(models.Like.blog_id == id).all()
 
 
-@router.get('/{id}/tags', response_model=List[Tag])
+@router.get('/{id}/tags', response_model=List[str])
 def get_tags(id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     blog = db.query(models.Blog).filter(models.Blog.id == id).first()
 
     if not blog:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="blog not found")
     
-    return blog.tags
+    return [tag.name for tag in blog.tags]
