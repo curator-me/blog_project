@@ -13,12 +13,20 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-
 def hash_pass(password: str):
     return pwd_context.hash(password)
 
 def verify_pass(plain_pass, hash_pass):
     return pwd_context.verify(plain_pass, hash_pass)
+
+## worked
+# import bcrypt
+# def verify_pass(plain_password: str, hashed_password: str) -> bool:
+#     return bcrypt.checkpw(plain_password.encode("utf-8"), hashed_password.encode("utf-8"))
+
+# def hash_pass(password: str) -> str:
+#     return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+
 
 
 @router.post("/create", status_code=status.HTTP_200_OK)
@@ -35,7 +43,7 @@ def register(request: user.UserIn, db: Session = Depends(get_db)):
 
     return {"info": "user created successfully"}
 
-@router.get('/login', response_model=token.Token)
+@router.post('/login', response_model=token.Token)
 def login(request: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = (
         db.query(models.User).filter(models.User.username == request.username).first()

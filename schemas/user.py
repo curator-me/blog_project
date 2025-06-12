@@ -12,11 +12,12 @@ class UserIn(BaseModel):
 
 
 class UserOut(BaseModel):
-    user_id: int
+    id: int
     username: str
     email: EmailStr
-    firstname: str
-    lastname: str
+    firstname: Optional[str] = None
+    lastname: Optional[str] = None
+    location: Optional[str] = None
     
 
 

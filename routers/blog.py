@@ -33,15 +33,17 @@ def create_blog(
 
     tag_objects = []
     if request.tags:
-        for tag_name in request.tags:
-            tag_name = tag_name.strip().lower()
-            if len(tag) == 0:
+        for tag_name__ in request.tags:
+            tag_name = tag_name__.strip().lower()
+            if len(tag_name) == 0:
                 continue
-            tag = db.query(models.Tag).filter(models.Tag.name == tag_name).first()
-            if not tag:
+            tag_exist = db.query(models.Tag).filter(models.Tag.name == tag_name).first()
+            if not tag_exist:
                 tag = models.Tag(name=tag_name)
                 db.add(tag)
                 db.flush()
+            else:
+                tag = tag_exist
             if tag not in tag_objects:
                 tag_objects.append(tag)
     
@@ -54,6 +56,7 @@ def create_blog(
     )
     
     db.add(blog)
+    db.commit()
 
     return {"info": "Blog created successfully"}
 
@@ -66,6 +69,22 @@ def get_blog(id: int = Query(...), db: Session = Depends(get_db), current_user: 
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="blog not found")
 
     blog.view_count += 1
+    history = db.query(models.History).filter(
+        models.History.user_id == current_user.id,
+        models.History.blog_id == blog.id,
+    ).first()
+
+    if history:
+        history.viewed_at = func.now()
+    else:
+        history = models.History(
+            user_id = current_user.id,
+            blog_id = id
+        )
+        db.add(history)
+        db.flush()
+
+    
     db.commit()
     db.refresh(blog)
 
@@ -118,7 +137,7 @@ def blog_query(category: Optional[str] = Query(None), tag: Optional[str] = Query
                 db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     query = db.query(models.Blog)
     if category:
-        query = query.join(Category).filter(models.Category.name == category).options(
+        query = query.join(models.Category).filter(models.Category.name == category).options(
             joinedload(models.Blog.category),
             joinedload(models.Blog.tags),
         )
@@ -131,7 +150,7 @@ def blog_query(category: Optional[str] = Query(None), tag: Optional[str] = Query
 
     return query.order_by(models.Blog.time_created.desc()).all()
 
-@router.get('/search', response_model=List)
+@router.get('/search', response_model=List[BlogOut])
 def search_blog(search_query: str, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     if search_query.__len__() < 2:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail='query is too short!!!')

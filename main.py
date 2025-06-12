@@ -6,6 +6,7 @@ from . import models
 
 
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     models.Base.metadata.create_all(engine)
