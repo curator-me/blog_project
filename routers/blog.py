@@ -109,8 +109,10 @@ def update_blog(id: int, request: BlogInDB, db: Session = Depends(get_db), curre
     
     if request.title != None:
         blog.title = request.title
+        blog.time_updated = func.now()
     if request.body != None:
         blog.body = request.body
+        blog.time_updated = func.now()
 
     db.commit()
     db.refresh(blog)

@@ -63,7 +63,7 @@ class Blog(Base):
     # search_vector = Column(TSVectorType('title', 'content'))  # Special column for full-text search (postgresql)
 
     time_created = Column(DateTime(timezone=True), server_default=func.now())
-    time_updated = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    time_updated = Column(DateTime(timezone=True), server_default=func.now())
 
     likes_count = Column(Integer, default=0)
     comments_count = Column(Integer, default=0)
