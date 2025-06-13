@@ -51,7 +51,7 @@ pip install -r requirements.txt
 ```
 4. **Run the server**
 ```
-fastapi dev main.py
+uvicorn main:app
 ```
 The API will be live at:
 👉 http://127.0.0.1:8000
