@@ -170,7 +170,7 @@ def remove_from_favorite_blog(id: int, db: Session = Depends(get_db), current_us
 
 
 @router.get('/history/view', response_model=List[HistoryOut])
-def my_history(skip: int = 0, limit: int = 0, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+def my_history(skip: int = 0, limit: int = 10, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     history = db.query(models.History).filter(
         models.History.user_id == current_user.id
     ).join(models.Blog).options(
