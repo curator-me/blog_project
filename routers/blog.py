@@ -3,14 +3,14 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func
 
-from ..schemas.blog import BlogIn, BlogOut, BlogInDB
-from ..schemas.comment import CommentOut
-from ..schemas.like import Like
-from ..schemas.category import Category
-from ..schemas.tag import Tag
-from ..database import get_db
-from .. import models
-from ..jwt_token import get_current_user
+from schemas.blog import BlogIn, BlogOut, BlogInDB
+from schemas.comment import CommentOut
+from schemas.like import Like
+from schemas.category import Category
+from schemas.tag import Tag
+from database import get_db
+import models
+from jwt_token import get_current_user
 
 router = APIRouter(
     prefix='/blog',

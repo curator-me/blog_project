@@ -2,15 +2,15 @@ from typing import List
 from fastapi import APIRouter, Depends, status, HTTPException, Query
 from sqlalchemy import func
 
-from ..schemas.history import HistoryOut
-from ..jwt_token import get_current_user
-from ..schemas.blog import BlogOut
-from ..schemas.comment import CommentOut
-from ..schemas.like import Like
-from ..schemas.user import UserOut, UserInDB
-from ..database import get_db
+from schemas.history import HistoryOut
+from jwt_token import get_current_user
+from schemas.blog import BlogOut
+from schemas.comment import CommentOut
+from schemas.like import Like
+from schemas.user import UserOut, UserInDB
+from database import get_db
 from sqlalchemy.orm import Session, joinedload
-from .. import models
+import models
 import random 
 
 router = APIRouter(prefix="/user", tags=["user"])

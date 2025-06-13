@@ -1,8 +1,8 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from .routers import auth, blog, category, user, comment, like, tag
-from .database import engine
-from . import models
+from routers import auth, blog, category, user, comment, like, tag
+from database import engine
+import models
 
 
 

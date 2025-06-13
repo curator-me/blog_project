@@ -2,10 +2,10 @@ from fastapi import Depends, APIRouter, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
-from ..jwt_token import  getToken
-from ..schemas import user, token
-from ..database import get_db
-from .. import models
+from jwt_token import  getToken
+from schemas import user, token
+from database import get_db
+import models
 
 
 

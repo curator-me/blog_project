@@ -2,10 +2,10 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from ..schemas.category import Category
-from ..database import get_db
-from .. import models
-from ..jwt_token import get_current_user
+from schemas.category import Category
+from database import get_db
+import models
+from jwt_token import get_current_user
 
 router = APIRouter(
     prefix='/category',

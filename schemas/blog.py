@@ -2,8 +2,6 @@ from typing import List, Optional
 from pydantic import BaseModel, field_validator
 from datetime import datetime
 
-from .tag import Tag
-
 class BlogIn(BaseModel):
     title: str
     body: str

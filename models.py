@@ -1,7 +1,7 @@
 from sqlalchemy import Boolean, Column, ForeignKey, Index, Integer, String, DateTime, Table, exists
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from .database import Base
+from database import Base
 
 
 blog_tag = Table(
